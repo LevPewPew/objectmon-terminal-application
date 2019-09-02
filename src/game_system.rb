@@ -8,7 +8,7 @@ end
 # map_tile_x_y where x is the column and y is the row
 # so map_tile_2_1 would represent the third column, second row
 def initialize_map
-    # hard coded instances for now, if time will make these more random
+    # FIXME hard coded instances for now, if time will make these more random
     map_tile_0_0 = MapTile.new('mountain', false)
     map_tile_1_0 = MapTile.new('grass', false)
     map_tile_2_0 = MapTile.new('mountain', false)
@@ -28,9 +28,9 @@ end
 
 def display_map(map_grid)
     puts "-------------------"
+    # for each row, get the map symbol associated with the terrain of the MapTile object. surround by < > symbols to indicate current location of player (current location is stored in a flag in the map tile)
     map_grid.each do |row|
         puts "| #{row[0].player_is_here ? '<': ' '}#{row[0].get_map_symbol}#{row[0].player_is_here ? '>': ' '} | #{row[1].player_is_here ? '<': ' '}#{row[1].get_map_symbol}#{row[1].player_is_here ? '>': ' '} | #{row[2].player_is_here ? '<': ' '}#{row[2].get_map_symbol}#{row[2].player_is_here ? '>': ' '} |"
-        # puts "| #{row[0].get_map_symbol}#{row[0].player_is_here ? '>' : ''} | #{row[1].get_map_symbol} | #{row[2].get_map_symbol} |"
         puts "-------------------"
     end
     
