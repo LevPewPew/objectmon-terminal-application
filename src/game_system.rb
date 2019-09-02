@@ -3,23 +3,31 @@ require 'artii'
 
 def run_game
     puts ''
+    # print title of game in ascii art to be fancy
     artii = Artii::Base.new :font => 'slant'
     puts artii.asciify('Objectmon!')
     puts ''
+
     # FIXME hard coded, fix if time
+    # Give some beginning guide and instuctions (FIXME: potentially elaborate on this further to make user experience better/easier/more-intuitive)
     puts 'Make your way to the South-East tile to win!'
     puts ''
+    # initialize map, player location and display map to user
     map = Map.new
     map.map_grid[0][0].player_is_here = true
     map.display_map
 
+    # initialize player and their objectmons
+    # objectmon
+
+    # run the menu loop to be navigated through. menu is being used as a way to control character actions and choose what info to display to user
     Menu.menu_system(map)
 end
 
 class Menu
     def self.menu_system(map)
         loop do
-            # choose and then  move in a direction on the map, game is won if player reaches the winning tile
+            # choose and then move in a direction on the map, game is won if player reaches the winning tile
             choice = menu_ask_direction
             current_location = map.move_location(choice)
             map.display_map
@@ -28,7 +36,7 @@ class Menu
                 exit
             end
 
-            # check if a wild objectmon appears and begin fight if so
+            # check if a wild objectmon appears (is instantiated), and begin fight if so
             if map.map_grid[current_location[0]][current_location[1]].wild_objectmon
                 puts 'PLACEHOLDER begin fight!'
                 puts ''
@@ -69,6 +77,24 @@ class Menu
     end
 
     private_class_method(:menu_ask_direction)
+end
+
+class Player
+    attr_reader(:name, :objectmons)
+
+    def initialize(name, objectmons)
+        @name = name
+        @objectmons = objectmons
+    end
+end
+
+class Objectmon
+    def initialize(name, type, dmg, hp)
+        @name = name
+        @type = type
+        @dmg = (dmg[0]..dmg[1])
+        @hp = hp
+    end
 end
 
 # map array grid is top to bottom left to right
@@ -169,14 +195,5 @@ class MapTile
             # if there is an error just default to grass
             return '"'
         end
-    end
-end
-
-class Objectmon
-    def initialize(name, type, dmg, hp)
-        @name = name
-        @type = type
-        @dmg = (dmg[0]..dmg[1])
-        @hp = hp
     end
 end
