@@ -4,7 +4,7 @@ require_relative 'game_system.rb'
 
 run_game
 
-colorize available colors
+# colorize available colors
 # def color_codes
 #     {
 #       :black   => 0, :light_black    => 60,

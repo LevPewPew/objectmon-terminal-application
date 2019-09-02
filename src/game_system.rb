@@ -18,14 +18,17 @@ def run_game
     map.display_map
 
     # initialize player and their objectmons
-    # objectmon
+    objectmon_p0 = Objectmon.new("Gregachu", 'grass', [1, 4], 10)
+
+    # FIXME ask for playername
+    player = Player.new("Lev", [objectmon_p0])
 
     # run the menu loop to be navigated through. menu is being used as a way to control character actions and choose what info to display to user
-    Menu.menu_system(map)
+    Menu.menu_system(map, player)
 end
 
 class Menu
-    def self.menu_system(map)
+    def self.menu_system(map, player)
         loop do
             # choose and then move in a direction on the map, game is won if player reaches the winning tile
             choice = menu_ask_direction
@@ -33,18 +36,17 @@ class Menu
             map.display_map
             if map.map_grid[map.winning_tile[0]][map.winning_tile[1]].player_is_here
                 puts 'Congratulations! You made it! You won!'.colorize(:color => :black, :background => :light_green)
+                puts ''
                 exit
             end
 
             # check if a wild objectmon appears (is instantiated), and begin fight if so
             if map.map_grid[current_location[0]][current_location[1]].wild_objectmon
-                puts 'PLACEHOLDER begin fight!'
-                puts ''
+                wild_objectmon = Objectmon.new("Stephamon", 'mountain', [1, 2], 5)
+                fight(player.objectmons[0], wild_objectmon)
             end
 
-
-
-
+            map.display_map
         end
         # PLACEHOLDER
         return
@@ -72,11 +74,46 @@ class Menu
         when 4
             return 'west'
         else
-            p "invalid choice"
+            p 'invalid choice'
         end
     end
 
-    private_class_method(:menu_ask_direction)
+    def self.fight(objectmon0, objectmon1)
+        round = 1
+        loop do
+            puts "#{objectmon0.name} HP: #{objectmon0.hp}"
+            puts "#{objectmon1.name} HP: #{objectmon1.hp}"
+            puts '***********************************************************'
+            puts "Round #{round}!:"
+            puts '-----------------------------------------------------------'
+            puts '1. Attack'.colorize(:cyan)
+            puts '***********************************************************'
+            print '> '
+            choice = gets.strip.to_i
+            puts ''
+            case choice
+            when 1
+                dmg_by_objectmon0 = rand(objectmon0.dmg)
+                dmg_by_objectmon1 = rand(objectmon1.dmg)
+                objectmon1.hp -= dmg_by_objectmon0
+                if objectmon1.hp <= 0
+                    puts "You have defeated #{objectmon1.name}!"
+                    puts ''
+                    break
+                else
+                    objectmon0.hp -= dmg_by_objectmon1
+                end
+                puts "#{objectmon0.name} did #{dmg_by_objectmon0} to #{objectmon1.name}"
+                puts "#{objectmon1.name} did #{dmg_by_objectmon1} to #{objectmon0.name}"
+                puts ''
+            else
+                p 'invalid choice'
+            end
+            round += 1
+        end
+    end
+
+    private_class_method(:menu_ask_direction, :fight)
 end
 
 class Player
@@ -89,6 +126,9 @@ class Player
 end
 
 class Objectmon
+    attr_reader(:name, :type, :dmg)
+    attr_accessor(:hp)
+
     def initialize(name, type, dmg, hp)
         @name = name
         @type = type
@@ -128,11 +168,11 @@ class Map
     
     def display_map
         puts "World Map:"
-        puts '-------------------'
+        puts '-------------'
         # for each row, get the map symbol associated with the terrain of the MapTile object. surround by < > symbols to indicate current location of player (current location is stored in a flag in the map tile)
         @map_grid.each do |row|
-            puts "| #{row[0].player_is_here ? '<': ' '}#{row[0].get_map_symbol}#{row[0].player_is_here ? '>': ' '} | #{row[1].player_is_here ? '<': ' '}#{row[1].get_map_symbol}#{row[1].player_is_here ? '>': ' '} | #{row[2].player_is_here ? '<': ' '}#{row[2].get_map_symbol}#{row[2].player_is_here ? '>': ' '} |"
-            puts '-------------------'
+            puts "|#{row[0].player_is_here ? " #{row[0].get_map_symbol} ".colorize(:color => :black, :background => :white) : " #{row[0].get_map_symbol} "}|#{row[1].player_is_here ? " #{row[1].get_map_symbol} ".colorize(:color => :black, :background => :white) : " #{row[1].get_map_symbol} "}|#{row[2].player_is_here ? " #{row[2].get_map_symbol} ".colorize(:color => :black, :background => :white) : " #{row[2].get_map_symbol} "}|"
+            puts '-------------'
         end
         puts ''
     end
