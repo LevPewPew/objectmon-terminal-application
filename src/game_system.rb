@@ -35,15 +35,18 @@ class Menu
             current_location = map.move_location(choice)
             map.display_map
             if map.map_grid[map.winning_tile[0]][map.winning_tile[1]].player_is_here
-                puts 'Congratulations! You made it! You won!'.colorize(:color => :black, :background => :light_green)
+                puts '                                          '.colorize(:color => :black, :background => :green)
+                puts '  Congratulations! You made it! You won!  '.colorize(:color => :black, :background => :green)
+                puts '                                          '.colorize(:color => :black, :background => :green)
                 puts ''
                 exit
             end
 
             # check if a wild objectmon appears (is instantiated), and begin fight if so
             if map.map_grid[current_location[0]][current_location[1]].wild_objectmon
-                wild_objectmon = Objectmon.new("Stephamon", 'mountain', [1, 2], 5)
-                fight(player.objectmons[0], wild_objectmon)
+                wild_objectmon = Objectmon.new("Stephamon", 'mountain', [15, 20], 5) # testing objectmon, don't ship with this
+                # wild_objectmon = Objectmon.new("Stephamon", 'mountain', [1, 2], 5) # UNCOMMENT on shipping
+                fight(player, player.objectmons[0], wild_objectmon)
             end
 
             map.display_map
@@ -78,7 +81,7 @@ class Menu
         end
     end
 
-    def self.fight(objectmon0, objectmon1)
+    def self.fight(player, objectmon0, objectmon1)
         round = 1
         loop do
             puts "#{objectmon0.name} HP: #{objectmon0.hp}"
@@ -102,6 +105,19 @@ class Menu
                     break
                 else
                     objectmon0.hp -= dmg_by_objectmon1
+                    if objectmon0.hp <= 0
+                        # FIXME replace with variable index somehow, when selecting with tty-prompt store selection in variable and use tha tas index
+                        puts "#{objectmon1.name} has defeated #{objectmon0.name}!"
+                        puts ''
+                        player.objectmons.delete_at(0)
+                        if player.objectmons.length <= 0
+                            puts '                                                                               '.colorize(:color => :white, :background => :red)
+                            puts '  You have lost your last Objectmon... you lose. Try again you filthy casual.  '.colorize(:color => :white, :background => :red)
+                            puts '                                                                               '.colorize(:color => :white, :background => :red)
+                            puts ''
+                            exit
+                        end
+                    end
                 end
                 puts "#{objectmon0.name} did #{dmg_by_objectmon0} to #{objectmon1.name}"
                 puts "#{objectmon1.name} did #{dmg_by_objectmon1} to #{objectmon0.name}"
