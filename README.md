@@ -10,7 +10,8 @@ A very, very basic Pokemon style game running as a text/ascii based terminal app
   - mountain terrain represented by ^
   - volcano terrain represented by /\~
 
-
+### Trello Board
+https://trello.com/b/nwIEDiKE
 
 
 <some markdown examples>

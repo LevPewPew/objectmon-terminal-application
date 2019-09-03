@@ -258,7 +258,7 @@ class MapTile
             return ' /\~ '
         else
             # if there is an error just default to grass
-            return '"'
+            return '  "  '
         end
     end
 end
