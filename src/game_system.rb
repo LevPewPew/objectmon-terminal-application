@@ -58,9 +58,27 @@ class Menu
 
             # check if a wild objectmon appears (is instantiated), and begin fight if so
             if map.map_grid[current_location[0]][current_location[1]].wild_objectmon
-                # wild_objectmon = Objectmon.new("Stephamon", 'mountain', [15, 20], 5) # TESTING objectmon, don't ship with this
-                wild_objectmon = objectmons[:om_stevosaur].dup # UNCOMMENT on shipping
-                fight(player, player.objectmons[0], wild_objectmon)
+                wild_objectmon = Objectmon.new("Stephamon", 'mountain', [15, 20], 500) # TESTING objectmon, don't ship with this
+                # wild_objectmon = objectmons[:om_stevosaur].dup # UNCOMMENT on shipping
+                result = fight(player, player.objectmons[0], wild_objectmon)
+            else
+                result = true
+            end
+            p result
+            if !result
+                p "DEBUG"
+                case choice
+                when 'north'
+                    reset = 'south'
+                when 'south'
+                    reset = 'north'
+                when 'east'
+                    reset = 'west'
+                when 'west'
+                    reset = 'east'
+                end
+                p reset
+                map.move_location(reset)
             end
 
             map.display_map
@@ -96,6 +114,7 @@ class Menu
     end
 
     def self.fight(player, objectmon0, objectmon1)
+        # returns true if win, returns false if loss
         round = 1
         loop do
             puts "#{objectmon0.name}".colorize(:green) + " HP: #{objectmon0.hp}"
@@ -119,7 +138,7 @@ class Menu
                 if objectmon1.hp <= 0
                     puts "You have defeated #{objectmon1.name}!"
                     puts ''
-                    break
+                    return true
                 else
                     objectmon0.hp -= dmg_by_objectmon1
                     if objectmon0.hp <= 0
@@ -134,10 +153,12 @@ class Menu
                             puts ''
                             exit
                         end
+                        return false
                     end
                 end
             else
-                p 'invalid choice'
+                p 'Invalid choice selected, please try again'
+                puts ''
             end
             round += 1
         end
