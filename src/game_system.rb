@@ -65,27 +65,6 @@ class Menu
                 table.align_column(0, :center)
                 table.align_column(2, :right)
                 puts table
-                binding.pry
-                # rows = []
-                # rows << ['One', 1]
-                # rows << ['Two', 2]
-                # rows << ['Three', 3]
-                # table = Terminal::Table.new :rows => rows
-
-                # # > puts table
-                # #
-                # # +-------+---+
-                # # | One   | 1 |
-                # # | Two   | 2 |
-                # # | Three | 3 |
-                # # +-------+---+
-
-                # puts 'PLACEHOLDER | DISPLAY SCORES'
-                # puts 'PLACEHOLDER | DISPLAY SCORES'
-                # puts 'PLACEHOLDER | DISPLAY SCORES'
-                # puts 'PLACEHOLDER | DISPLAY SCORES'
-                # puts 'PLACEHOLDER | DISPLAY SCORES'
-
                 puts ''
             when 'quit'
                 exit
@@ -128,7 +107,7 @@ class Menu
                 puts '  Congratulations! You made it! You won!  '.colorize(:color => :black, :background => :green)
                 puts '                                          '.colorize(:color => :black, :background => :green)
                 puts ''
-                exit
+                break
             end
 
             # check if a wild objectmon appears (is instantiated), and begin fight if so
@@ -137,8 +116,8 @@ class Menu
                 wild_objectmon = Objectmon.new("Stephamon", 'mountain', [15, 20], 500) # TESTING objectmon, don't ship with this
                 # wild_objectmon = objectmons[:om_stevosaur].dup # UNCOMMENT on shipping
                 result = fight(player, player.objectmons, wild_objectmon)
-                # the fight method will break and return 'lost' if it broke due to losing the game. in turn we will break from here as well to return to the main menu
-                if result == 'lost'
+                # the fight method will break and return 'load-menu' if it broke due to losing the game. in turn we will break from here as well to return to the main menu
+                if result == 'load-menu'
                     break
                 end
             else
@@ -255,7 +234,7 @@ class Menu
                             puts '                                                                               '.colorize(:color => :white, :background => :red)
                             puts ''
                             # this syntax means upon break return the string 'lost', in the loop that this loop is nested in, we will check if this is what the method returned, and use it to break the outer loop if so, returning us to the main menu
-                            break 'lost'
+                            break 'load-menu'
                         end
                         return false
                     end
