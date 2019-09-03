@@ -19,7 +19,10 @@ def run_game
 
     # initialize player and their objectmons
     objectmon_p0 = Objectmon.new("Gregachu", 'grass', [1, 4], 10)
-
+    # LEFTOFF
+    # objectmon_p1 = Objectmon.new("Gregachu", 'grass', [1, 4], 10)
+    # objectmon_p2 = Objectmon.new("Gregachu", 'grass', [1, 4], 10)
+    
     # FIXME ask for playername
     player = Player.new("Lev", [objectmon_p0])
 
@@ -44,14 +47,14 @@ class Menu
 
             # check if a wild objectmon appears (is instantiated), and begin fight if so
             if map.map_grid[current_location[0]][current_location[1]].wild_objectmon
-                wild_objectmon = Objectmon.new("Stephamon", 'mountain', [15, 20], 5) # testing objectmon, don't ship with this
-                # wild_objectmon = Objectmon.new("Stephamon", 'mountain', [1, 2], 5) # UNCOMMENT on shipping
+                # wild_objectmon = Objectmon.new("Stephamon", 'mountain', [15, 20], 5) # TESTING objectmon, don't ship with this
+                wild_objectmon = Objectmon.new("Stephamon", 'mountain', [1, 2], 5) # UNCOMMENT on shipping
                 fight(player, player.objectmons[0], wild_objectmon)
             end
 
             map.display_map
         end
-        # PLACEHOLDER
+
         return
     end
 
@@ -165,13 +168,13 @@ class Map
         # FIXME hard coded instances for now, if have time will make these more random and use a loop
         # FIXME use hashes to generate instances for code clarity and maintainability
         @map_tile_0_0 = MapTile.new([0, 0], 'mountain', false)
-        @map_tile_1_0 = MapTile.new([1, 0], 'grass', false)
-        @map_tile_2_0 = MapTile.new([2, 0], 'mountain', true)
         @map_tile_0_1 = MapTile.new([0, 1], 'grass', false)
-        @map_tile_1_1 = MapTile.new([1, 1], 'grass', false)
-        @map_tile_2_1 = MapTile.new([2, 1], 'mountain', false)
         @map_tile_0_2 = MapTile.new([0, 2], 'mountain', false)
-        @map_tile_1_2 = MapTile.new([1, 2], 'grass', false)
+        @map_tile_1_0 = MapTile.new([1, 0], 'grass', false)
+        @map_tile_1_1 = MapTile.new([1, 1], 'grass', false)
+        @map_tile_1_2 = MapTile.new([1, 2], 'volcano', false)
+        @map_tile_2_0 = MapTile.new([2, 0], 'mountain', true)
+        @map_tile_2_1 = MapTile.new([2, 1], 'mountain', false)
         @map_tile_2_2 = MapTile.new([2, 2], 'grass', false)
         @map_grid = [
             [@map_tile_0_0, @map_tile_0_1, @map_tile_0_2],
@@ -184,11 +187,15 @@ class Map
     
     def display_map
         puts "World Map:"
-        puts '-------------'
+        puts '-------------------------'
         # for each row, get the map symbol associated with the terrain of the MapTile object. surround by < > symbols to indicate current location of player (current location is stored in a flag in the map tile)
         @map_grid.each do |row|
+            puts "|#{row[0].player_is_here ? "       ".colorize(:color => :black, :background => :white) : "       "}|#{row[1].player_is_here ? "       ".colorize(:color => :black, :background => :white) : "       "}|#{row[2].player_is_here ? "       ".colorize(:color => :black, :background => :white) : "       "}|"
+            
             puts "|#{row[0].player_is_here ? " #{row[0].get_map_symbol} ".colorize(:color => :black, :background => :white) : " #{row[0].get_map_symbol} "}|#{row[1].player_is_here ? " #{row[1].get_map_symbol} ".colorize(:color => :black, :background => :white) : " #{row[1].get_map_symbol} "}|#{row[2].player_is_here ? " #{row[2].get_map_symbol} ".colorize(:color => :black, :background => :white) : " #{row[2].get_map_symbol} "}|"
-            puts '-------------'
+            
+            puts "|#{row[0].player_is_here ? "       ".colorize(:color => :black, :background => :white) : "       "}|#{row[1].player_is_here ? "       ".colorize(:color => :black, :background => :white) : "       "}|#{row[2].player_is_here ? "       ".colorize(:color => :black, :background => :white) : "       "}|"
+            puts '-------------------------'
         end
         puts ''
     end
@@ -244,9 +251,11 @@ class MapTile
     def get_map_symbol
         case @terrain
         when 'mountain'
-            return '^'
+            return '  ^  '
         when 'grass'
-            return '"'
+            return '  "  '
+        when 'volcano'
+            return ' /\~ '
         else
             # if there is an error just default to grass
             return '"'
