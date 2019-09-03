@@ -1,5 +1,8 @@
 require 'colorize'
 require 'artii'
+require 'csv'
+require 'terminal-table'
+require 'pry'
 
 def run_game
     system('clear')
@@ -16,7 +19,6 @@ def run_game
     # initialize map, player location and display map to user
     map = Map.new
     map.map_grid[0][0].player_is_here = true
-    map.display_map
 
     om_gregachu = Objectmon.new("Gregachu", 'grass', [1, 4], 10)
     om_jennizard = Objectmon.new("Jennizard", 'mountain', [9, 10], 2)
@@ -45,6 +47,79 @@ end
 class Menu
     def self.menu_system(map, player, objectmons)
         loop do
+            choice = main_menu
+            case choice
+            when 'play'
+                play_menu(map, player, objectmons)
+            when 'scores'
+                table_rows = []
+                File.open('test_high_scores.csv', 'r').each_with_index do |line, i|
+                    if i == 0
+                        table_rows << line.strip.split(',')
+                        table_rows << :separator
+                    else line.length > 0
+                        table_rows << line.strip.split(',')
+                    end
+                end
+                table = Terminal::Table.new :rows => table_rows
+                table.align_column(0, :center)
+                table.align_column(2, :right)
+                puts table
+                binding.pry
+                # rows = []
+                # rows << ['One', 1]
+                # rows << ['Two', 2]
+                # rows << ['Three', 3]
+                # table = Terminal::Table.new :rows => rows
+
+                # # > puts table
+                # #
+                # # +-------+---+
+                # # | One   | 1 |
+                # # | Two   | 2 |
+                # # | Three | 3 |
+                # # +-------+---+
+
+                # puts 'PLACEHOLDER | DISPLAY SCORES'
+                # puts 'PLACEHOLDER | DISPLAY SCORES'
+                # puts 'PLACEHOLDER | DISPLAY SCORES'
+                # puts 'PLACEHOLDER | DISPLAY SCORES'
+                # puts 'PLACEHOLDER | DISPLAY SCORES'
+
+                puts ''
+            when 'quit'
+                exit
+            end
+        end
+    end
+
+    def self.main_menu
+        loop do
+            puts '***********************************************************'
+            puts '     Welcome to Objectmon, what would you like to do?      '.colorize(:color => :black, :background => :white)
+            puts '-----------------------------------------------------------'
+            puts '1. Play'.colorize(:cyan)
+            puts '2. High Scores'.colorize(:cyan)
+            puts '3. Quit'.colorize(:cyan)
+            puts '***********************************************************'
+            print '> '
+            choice = gets.strip.to_i
+            puts ''
+            system('clear')
+            case choice
+            when 1
+                return 'play'
+            when 2
+                return 'scores'
+            when 3
+                return 'quit'
+            end
+        end
+    end
+
+    def self.play_menu(map, player, objectmons)
+        map.display_map
+        loop do
             # choose and then move in a direction on the map, game is won if player reaches the winning tile
             choice = menu_ask_direction
             current_location = map.move_location(choice)
@@ -59,9 +134,13 @@ class Menu
             # check if a wild objectmon appears (is instantiated), and begin fight if so
             if map.map_grid[current_location[0]][current_location[1]].wild_objectmon
                 map.display_map
-                # wild_objectmon = Objectmon.new("Stephamon", 'mountain', [15, 20], 500) # TESTING objectmon, don't ship with this
-                wild_objectmon = objectmons[:om_stevosaur].dup # UNCOMMENT on shipping
+                wild_objectmon = Objectmon.new("Stephamon", 'mountain', [15, 20], 500) # TESTING objectmon, don't ship with this
+                # wild_objectmon = objectmons[:om_stevosaur].dup # UNCOMMENT on shipping
                 result = fight(player, player.objectmons, wild_objectmon)
+                # the fight method will break and return 'lost' if it broke due to losing the game. in turn we will break from here as well to return to the main menu
+                if result == 'lost'
+                    break
+                end
             else
                 result = 'no-fight'
             end
@@ -175,7 +254,8 @@ class Menu
                             puts '  You have lost your last Objectmon... you lose. Try again you filthy casual.  '.colorize(:color => :white, :background => :red)
                             puts '                                                                               '.colorize(:color => :white, :background => :red)
                             puts ''
-                            exit
+                            # this syntax means upon break return the string 'lost', in the loop that this loop is nested in, we will check if this is what the method returned, and use it to break the outer loop if so, returning us to the main menu
+                            break 'lost'
                         end
                         return false
                     end
@@ -188,7 +268,8 @@ class Menu
         end
     end
 
-    private_class_method(:menu_ask_direction, :fight)
+    # this is here because menu_system is a class method and i have compartmentalised some of it's tasks into other methods that it will access. these other methods have to be class methods so that menu_system has access to them. however i don't want to allow other classes or scripts to be able to access these so i have put them into this private_class_method statement
+    private_class_method(:main_menu, :play_menu, :menu_ask_direction, :fight)
 end
 
 class Player
