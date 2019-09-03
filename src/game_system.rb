@@ -2,6 +2,7 @@ require 'colorize'
 require 'artii'
 
 def run_game
+    system('clear')
     puts ''
     # print title of game in ascii art to be fancy
     artii = Artii::Base.new :font => 'slant'
@@ -47,7 +48,6 @@ class Menu
             # choose and then move in a direction on the map, game is won if player reaches the winning tile
             choice = menu_ask_direction
             current_location = map.move_location(choice)
-            map.display_map
             if map.map_grid[map.winning_tile[0]][map.winning_tile[1]].player_is_here
                 puts '                                          '.colorize(:color => :black, :background => :green)
                 puts '  Congratulations! You made it! You won!  '.colorize(:color => :black, :background => :green)
@@ -58,15 +58,18 @@ class Menu
 
             # check if a wild objectmon appears (is instantiated), and begin fight if so
             if map.map_grid[current_location[0]][current_location[1]].wild_objectmon
+                map.display_map
                 # wild_objectmon = Objectmon.new("Stephamon", 'mountain', [15, 20], 500) # TESTING objectmon, don't ship with this
                 wild_objectmon = objectmons[:om_stevosaur].dup # UNCOMMENT on shipping
                 result = fight(player, player.objectmons, wild_objectmon)
             else
-                result = true
+                result = 'no-fight'
             end
 
             # if the fight results in a loss, return the player to the tile in the direction they came from
-            if !result
+            if result
+                map.map_grid[current_location[0]][current_location[1]].wild_objectmon = false
+            elsif !result
                 case choice
                 when 'north'
                     reset = 'south'
@@ -78,8 +81,9 @@ class Menu
                     reset = 'east'
                 end
                 map.move_location(reset)
+            else
+                # do nothing
             end
-
             # show map with every non-combat action so player doesn't have to scroll up for last map position
             map.display_map
         end
@@ -116,8 +120,11 @@ class Menu
     def self.fight(player, objectmons, objectmon1)
         # returns true if win, returns false if loss
         round = 1
+        objectmon0 = nil
         loop do
             if round == 1
+                puts "A wild #{objectmon1.name} appears!"
+                puts ''
                 puts '***********************************************************'
                 puts '                   Select an Objectmon!                    '.colorize(:color => :black, :background => :white)
                 puts '-----------------------------------------------------------'
@@ -127,7 +134,9 @@ class Menu
                 puts '***********************************************************'
                 print '> '
                 choice_objectmon = gets.strip.to_i
-                objectmon0 = player.objectmons[choice_objectmon - 1]
+                puts ''
+
+                objectmon0 = player.objectmons[choice_objectmon - 1].dup
             end
             puts "#{objectmon0.name}".colorize(:green) + " HP: #{objectmon0.hp}"
             puts "#{objectmon1.name}".colorize(:red) + " HP: #{objectmon1.hp}"
@@ -147,13 +156,17 @@ class Menu
                 puts "#{objectmon1.name}".colorize(:red) + " did #{dmg_by_objectmon1} to " + "#{objectmon0.name}".colorize(:green)
                 puts ''
                 objectmon1.hp -= dmg_by_objectmon0
+                # enemy objectmon defeated
                 if objectmon1.hp <= 0
+                    system('clear')
                     puts "You have defeated " + "#{objectmon1.name}".colorize(:red) + "!"
                     puts ''
                     return true
+                # player objectmon defeated
                 else
                     objectmon0.hp -= dmg_by_objectmon1
                     if objectmon0.hp <= 0
+                        system('clear')
                         puts "#{objectmon1.name}".colorize(:red) + " has defeated " + "#{objectmon0.name}".colorize(:green) + "!"
                         puts ''
                         player.objectmons.delete_at(choice_objectmon - 1)
@@ -245,6 +258,7 @@ class Map
     end
     
     def move_location(direction)
+        system('clear')
         x_coord = nil
         y_coord = nil
         @map_grid.each_with_index do |row, i|
