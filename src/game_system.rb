@@ -17,21 +17,32 @@ def run_game
     map.map_grid[0][0].player_is_here = true
     map.display_map
 
-    # initialize player and their objectmons
-    objectmon_p0 = Objectmon.new("Gregachu", 'grass', [1, 4], 10)
-    # LEFTOFF
-    # objectmon_p1 = Objectmon.new("Gregachu", 'grass', [1, 4], 10)
-    # objectmon_p2 = Objectmon.new("Gregachu", 'grass', [1, 4], 10)
-    
+    om_gregachu = Objectmon.new("Gregachu", 'grass', [1, 4], 10)
+    om_jennizard = Objectmon.new("Jennizard", 'mountain', [9, 10], 2)
+    om_carlmander = Objectmon.new("Carlmander", 'volcano', [2, 5], 5)
+    om_lucymon = Objectmon.new("Lucymon", 'grass', [1, 1], 20)
+    om_stevosaur = Objectmon.new("Stevosaur", 'mountain', [1, 3], 5)
+    om_emileotto = Objectmon.new("Emileotto", 'volcano', [3, 4], 12)
+
+    objectmons = {
+        om_gregachu: om_gregachu,
+        om_jennizard: om_jennizard,
+        om_carlmander: om_carlmander,
+        om_lucymon: om_lucymon,
+        om_stevosaur: om_stevosaur,
+        om_emileotto: om_emileotto
+    }
+
+    objectmons_p = [objectmons[:om_gregachu].dup, objectmons[:om_jennizard].dup, objectmons[:om_carlmander].dup]
     # FIXME ask for playername
-    player = Player.new("Lev", [objectmon_p0])
+    player = Player.new("Lev", objectmons_p)
 
     # run the menu loop to be navigated through. menu is being used as a way to control character actions and choose what info to display to user
-    Menu.menu_system(map, player)
+    Menu.menu_system(map, player, objectmons)
 end
 
 class Menu
-    def self.menu_system(map, player)
+    def self.menu_system(map, player, objectmons)
         loop do
             # choose and then move in a direction on the map, game is won if player reaches the winning tile
             choice = menu_ask_direction
@@ -48,7 +59,7 @@ class Menu
             # check if a wild objectmon appears (is instantiated), and begin fight if so
             if map.map_grid[current_location[0]][current_location[1]].wild_objectmon
                 # wild_objectmon = Objectmon.new("Stephamon", 'mountain', [15, 20], 5) # TESTING objectmon, don't ship with this
-                wild_objectmon = Objectmon.new("Stephamon", 'mountain', [1, 2], 5) # UNCOMMENT on shipping
+                wild_objectmon = objectmons[:om_stevosaur].dup # UNCOMMENT on shipping
                 fight(player, player.objectmons[0], wild_objectmon)
             end
 
@@ -87,10 +98,10 @@ class Menu
     def self.fight(player, objectmon0, objectmon1)
         round = 1
         loop do
-            puts "#{objectmon0.name} HP: #{objectmon0.hp}"
-            puts "#{objectmon1.name} HP: #{objectmon1.hp}"
+            puts "#{objectmon0.name}".colorize(:green) + " HP: #{objectmon0.hp}"
+            puts "#{objectmon1.name}".colorize(:red) + " HP: #{objectmon1.hp}"
             puts '***********************************************************'
-            puts "Round #{round}!:"
+            puts "                         Round #{round}!:                         ".colorize(:color => :black, :background => :white)
             puts '-----------------------------------------------------------'
             puts '1. Attack'.colorize(:cyan)
             puts '***********************************************************'
@@ -101,6 +112,9 @@ class Menu
             when 1
                 dmg_by_objectmon0 = rand(objectmon0.dmg)
                 dmg_by_objectmon1 = rand(objectmon1.dmg)
+                puts "#{objectmon0.name}".colorize(:green) + " did #{dmg_by_objectmon0} to " + "#{objectmon1.name}".colorize(:red)
+                puts "#{objectmon1.name}".colorize(:red) + " did #{dmg_by_objectmon1} to " + "#{objectmon0.name}".colorize(:green)
+                puts ''
                 objectmon1.hp -= dmg_by_objectmon0
                 if objectmon1.hp <= 0
                     puts "You have defeated #{objectmon1.name}!"
@@ -122,9 +136,6 @@ class Menu
                         end
                     end
                 end
-                puts "#{objectmon0.name} did #{dmg_by_objectmon0} to #{objectmon1.name}"
-                puts "#{objectmon1.name} did #{dmg_by_objectmon1} to #{objectmon0.name}"
-                puts ''
             else
                 p 'invalid choice'
             end
