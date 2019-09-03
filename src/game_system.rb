@@ -33,9 +33,9 @@ def run_game
         om_emileotto: om_emileotto
     }
 
-    objectmons_p = [objectmons[:om_gregachu].dup, objectmons[:om_jennizard].dup, objectmons[:om_carlmander].dup]
+    objectmons_starting = [objectmons[:om_gregachu].dup, objectmons[:om_jennizard].dup, objectmons[:om_carlmander].dup]
     # FIXME ask for playername
-    player = Player.new("Lev", objectmons_p)
+    player = Player.new("Lev", objectmons_starting)
 
     # run the menu loop to be navigated through. menu is being used as a way to control character actions and choose what info to display to user
     Menu.menu_system(map, player, objectmons)
@@ -58,15 +58,15 @@ class Menu
 
             # check if a wild objectmon appears (is instantiated), and begin fight if so
             if map.map_grid[current_location[0]][current_location[1]].wild_objectmon
-                wild_objectmon = Objectmon.new("Stephamon", 'mountain', [15, 20], 500) # TESTING objectmon, don't ship with this
-                # wild_objectmon = objectmons[:om_stevosaur].dup # UNCOMMENT on shipping
-                result = fight(player, player.objectmons[0], wild_objectmon)
+                # wild_objectmon = Objectmon.new("Stephamon", 'mountain', [15, 20], 500) # TESTING objectmon, don't ship with this
+                wild_objectmon = objectmons[:om_stevosaur].dup # UNCOMMENT on shipping
+                result = fight(player, player.objectmons, wild_objectmon)
             else
                 result = true
             end
-            p result
+
+            # if the fight results in a loss, return the player to the tile in the direction they came from
             if !result
-                p "DEBUG"
                 case choice
                 when 'north'
                     reset = 'south'
@@ -77,10 +77,10 @@ class Menu
                 when 'west'
                     reset = 'east'
                 end
-                p reset
                 map.move_location(reset)
             end
 
+            # show map with every non-combat action so player doesn't have to scroll up for last map position
             map.display_map
         end
 
@@ -113,21 +113,33 @@ class Menu
         end
     end
 
-    def self.fight(player, objectmon0, objectmon1)
+    def self.fight(player, objectmons, objectmon1)
         # returns true if win, returns false if loss
         round = 1
         loop do
+            if round == 1
+                puts '***********************************************************'
+                puts '                   Select an Objectmon!                    '.colorize(:color => :black, :background => :white)
+                puts '-----------------------------------------------------------'
+                player.objectmons.each_with_index do |objectmon, i|
+                    puts "#{i + 1}. #{objectmon.name}".colorize(:cyan)
+                end
+                puts '***********************************************************'
+                print '> '
+                choice_objectmon = gets.strip.to_i
+                objectmon0 = player.objectmons[choice_objectmon - 1]
+            end
             puts "#{objectmon0.name}".colorize(:green) + " HP: #{objectmon0.hp}"
             puts "#{objectmon1.name}".colorize(:red) + " HP: #{objectmon1.hp}"
             puts '***********************************************************'
-            puts "                         Round #{round}!:                         ".colorize(:color => :black, :background => :white)
+            puts "                         Round #{round}!                          ".colorize(:color => :black, :background => :white)
             puts '-----------------------------------------------------------'
             puts '1. Attack'.colorize(:cyan)
             puts '***********************************************************'
             print '> '
-            choice = gets.strip.to_i
+            choice_action = gets.strip.to_i
             puts ''
-            case choice
+            case choice_action
             when 1
                 dmg_by_objectmon0 = rand(objectmon0.dmg)
                 dmg_by_objectmon1 = rand(objectmon1.dmg)
@@ -136,16 +148,15 @@ class Menu
                 puts ''
                 objectmon1.hp -= dmg_by_objectmon0
                 if objectmon1.hp <= 0
-                    puts "You have defeated #{objectmon1.name}!"
+                    puts "You have defeated " + "#{objectmon1.name}".colorize(:red) + "!"
                     puts ''
                     return true
                 else
                     objectmon0.hp -= dmg_by_objectmon1
                     if objectmon0.hp <= 0
-                        # FIXME replace with variable index somehow, when selecting with tty-prompt store selection in variable and use tha tas index
-                        puts "#{objectmon1.name} has defeated #{objectmon0.name}!"
+                        puts "#{objectmon1.name}".colorize(:red) + " has defeated " + "#{objectmon0.name}".colorize(:green) + "!"
                         puts ''
-                        player.objectmons.delete_at(0)
+                        player.objectmons.delete_at(choice_objectmon - 1)
                         if player.objectmons.length <= 0
                             puts '                                                                               '.colorize(:color => :white, :background => :red)
                             puts '  You have lost your last Objectmon... you lose. Try again you filthy casual.  '.colorize(:color => :white, :background => :red)
@@ -168,7 +179,8 @@ class Menu
 end
 
 class Player
-    attr_reader(:name, :objectmons)
+    attr_reader(:name)
+    attr_accessor(:objectmons)
 
     def initialize(name, objectmons)
         @name = name
