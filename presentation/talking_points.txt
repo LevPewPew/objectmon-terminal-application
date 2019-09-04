@@ -8,6 +8,6 @@ combat is just a menu system and dmg and hp attributes stored in objectmons and 
 - 
 
 things i would improve upon (that isn't adding more features)
-- at the moment there is not good system i have thought of of when and where to put system('clear')s, i have sort of winged it to just get the result i need. but i feel like there is a logical way so i don't have to think and test constantly to make sure it's doing what i want it to
+- would start by using tty-prompt gem next time
 
 high score table. just quickly mention u read and write to a csv

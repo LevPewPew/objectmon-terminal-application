@@ -1,8 +1,7 @@
 require 'colorize'
 require 'artii'
-require 'csv'
 require 'terminal-table'
-require 'pry'
+require 'tty-prompt'
 
 SCORE_FACTOR_HP = 0.8
 SCORE_FACTOR_DMG = 1.2
@@ -11,8 +10,8 @@ def run_game
     system('clear')
     puts ''
     # print title of game in ascii art to be fancy
-    artii = Artii::Base.new :font => 'slant'
-    puts artii.asciify('Objectmon!')
+    artii = Artii::Base.new :font => 'nancyj-fancy'
+    puts artii.asciify('Objectmon!').colorize(:magenta)
     puts ''
 
     # FIXME hard coded, fix if time
@@ -51,8 +50,24 @@ class Menu
             case choice
             when 'play'
                 objectmons_starting = [objectmons[:om_gregachu].dup, objectmons[:om_jennizard].dup, objectmons[:om_carlmander].dup]
-                # FIXME ask for playername
-                player = Player.new("Lev", objectmons_starting)
+                loop do
+                    begin
+                        puts '***********************************************************'
+                        puts '                    Enter a Player Name                    '.colorize(:color => :black, :background => :white)
+                        puts '***********************************************************'
+                        print '> '
+                        choice = gets.strip
+                        # FIXME bug keeps loopiomng here
+                        if choice.length < 3 || choice.length > 10 # FIXME SEE IF CAN USE RANGE AS CONDITION LIKE WITH CASE
+                            raise('Player Name must be 3 to 10')
+                        end
+                        break
+                    rescue => error
+                        puts error
+                    end
+                end
+                system('clear')
+                player = Player.new(choice, objectmons_starting)
                 play_menu(map, player, objectmons)
             when 'scores'
                 table_rows = []
@@ -101,6 +116,7 @@ class Menu
 
     # FIXME maybe move these display maps around and the system clears
     def self.play_menu(map, player, objectmons)
+        prompt = TTY::Prompt.new
         map.display_map
         loop do
             # choose and then move in a direction on the map, game is won if player reaches the winning tile
@@ -111,7 +127,9 @@ class Menu
                 puts '  Congratulations! You made it! You won!  '.colorize(:color => :black, :background => :green)
                 puts '                                          '.colorize(:color => :black, :background => :green)
                 puts ''
-                p player.get_score
+                HighScores.add_score(player)
+                prompt.keypress("Press any key to continue, returning to main menu automatically in :countdown ...", timeout: 10)
+                system('clear')
                 break
             end
 
@@ -240,7 +258,7 @@ class Menu
                             puts '                                                                               '.colorize(:color => :white, :background => :red)
                             puts ''
                             # this syntax means upon break return the string 'lost', in the loop that this loop is nested in, we will check if this is what the method returned, and use it to break the outer loop if so, returning us to the main menu
-                            p player.get_score
+                            HighScores.add_score(player)
                             break 'load-menu'
                         end
                         return false
@@ -334,6 +352,12 @@ class Map
             
             puts "|#{row[0].player_is_here ? "       ".colorize(:color => :black, :background => :white) : "       "}|#{row[1].player_is_here ? "       ".colorize(:color => :black, :background => :white) : "       "}|#{row[2].player_is_here ? "       ".colorize(:color => :black, :background => :white) : "       "}|"
             puts '-------------------------'
+            # puts "|#{row[0].player_is_here ? "       ".colorize(:color => :black, :background => :white) : "       "}|#{row[1].player_is_here ? "       ".colorize(:color => :black, :background => :white) : "       "}|#{row[2].player_is_here ? "       ".colorize(:color => :black, :background => :white) : "       "}|"
+            
+            # puts "|#{row[0].player_is_here ? " #{row[0].get_map_symbol} ".colorize(:color => :black, :background => :white) : " #{row[0].get_map_symbol} "}|#{row[1].player_is_here ? " #{row[1].get_map_symbol} ".colorize(:color => :black, :background => :white) : " #{row[1].get_map_symbol} "}|#{row[2].player_is_here ? " #{row[2].get_map_symbol} ".colorize(:color => :black, :background => :white) : " #{row[2].get_map_symbol} "}|"
+            
+            # puts "|#{row[0].player_is_here ? "       ".colorize(:color => :black, :background => :white) : "       "}|#{row[1].player_is_here ? "       ".colorize(:color => :black, :background => :white) : "       "}|#{row[2].player_is_here ? "       ".colorize(:color => :black, :background => :white) : "       "}|"
+            # puts '-------------------------'
         end
         puts ''
     end
@@ -408,5 +432,35 @@ class MapTile
             # if there is an error just default to grass
             return '  "  '
         end
+    end
+end
+
+class HighScores
+    def self.add_score(player)
+        new_lines = []
+        headers = nil
+        File.open('test_high_scores.csv', 'r').each_with_index do |line, i|
+            if i == 0
+                headers = line.split(',')
+            elsif line.length > 0
+                new_lines << line.split(',')
+            end
+        end
+        new_lines << ["X", "#{player.name}", "#{player.get_score}\n"]
+        # sort scores from highest to lowest, then remap the array of table lines to itself but with the "Place" column reorganised to reflect the added entry. there is no map with index so need to use an each with index first
+        new_lines = new_lines
+            .sort { |a, b| b[2] <=> a[2] }
+            .map.with_index { |line, i| ["#{i}"] + line[(1..2)] }
+        new_lines.unshift(headers)
+        new_lines = new_lines.map do |line|
+            line.join(',')
+        end
+
+        File.open('test_high_scores.csv', 'w') do |file|
+            file.write(new_lines.join)
+        end
+        
+        # FIXME in the future i would return the rank somehow
+        return player.get_score
     end
 end
