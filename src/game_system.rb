@@ -2,7 +2,6 @@ require 'colorize'
 require 'artii'
 require 'terminal-table'
 require 'tty-prompt'
-require 'pry'
 
 SCORE_FACTOR_HP = 0.8
 SCORE_FACTOR_DMG = 1.2
@@ -40,7 +39,7 @@ def run_game
 
         # if ARGV -r is provided, reset the high score table
         if ARGV[0].include?("r")
-            `cp default_high_scores.csv test_high_scores.csv`
+            `cp default_high_scores.csv high_scores.csv`
         end
 
         if ARGV[0].include?("d") && ARGV[1].include?("hard")
@@ -121,7 +120,7 @@ class Menu
                 play_menu(map, player, objectmons)
             when 'scores'
                 table_rows = []
-                File.open('test_high_scores.csv', 'r').each_with_index do |line, i|
+                File.open('high_scores.csv', 'r').each_with_index do |line, i|
                     if i == 0
                         table_rows << line.strip.split(',')
                         table_rows << :separator
@@ -186,8 +185,8 @@ class Menu
             # check if a wild objectmon appears (is instantiated), and begin fight if so
             if map.map_grid[current_location[0]][current_location[1]].wild_objectmon
                 map.display_map
-                # wild_objectmon = Objectmon.new("Stephamon", 'mountain', (15..20), 500) # TESTING objectmon, don't ship with this
-                wild_objectmon = objectmons[:om_stevosaur].dup # UNCOMMENT on shipping
+                # wild_objectmon = Objectmon.new("Stephamon", 'mountain', (15..20), 500) # TESTING objectmon, don't ship with this FIXME
+                wild_objectmon = objectmons[:om_stevosaur].dup # UNCOMMENT on shipping FIXME
                 result = fight(player, player.objectmons, wild_objectmon)
                 # the fight method will break and return 'load-menu' if it broke due to losing the game. in turn we will break from here as well to return to the main menu
                 if result == 'load-menu'
@@ -500,7 +499,7 @@ class HighScores
     def self.add_score(player)
         new_lines = []
         headers = nil
-        File.open('test_high_scores.csv', 'r').each_with_index do |line, i|
+        File.open('high_scores.csv', 'r').each_with_index do |line, i|
             if i == 0
                 headers = line.split(',')
             elsif line.length > 0
@@ -517,7 +516,7 @@ class HighScores
             line.join(',')
         end
 
-        File.open('test_high_scores.csv', 'w') do |file|
+        File.open('high_scores.csv', 'w') do |file|
             file.write(new_lines.join)
         end
         
