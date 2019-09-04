@@ -59,7 +59,7 @@ def run_game
     puts ''
 
     # FIXME hard coded, fix if time
-    # FIXME also since menu has changed move this to alater spot
+    # FIXME also since menu has changed move this to a later spot
     # Give some beginning guide and instuctions (FIXME: potentially elaborate on this further to make user experience better/easier/more-intuitive)
     puts 'Make your way to the South-East tile to win!'
     puts ''
@@ -223,26 +223,28 @@ class Menu
     end
 
     def self.menu_ask_direction
+        prompt = TTY::Prompt.new
         puts '***********************************************************'
         puts '         What direction would you like to move in?         '.colorize(:color => :black, :background => :white)
         puts '-----------------------------------------------------------'
-        puts '1. North'.colorize(:cyan)
-        puts '2. South'.colorize(:cyan)
-        puts '3. East'.colorize(:cyan)
-        puts '4. West'.colorize(:cyan)
+        puts 'W. North'.colorize(:cyan)
+        puts 'S. South'.colorize(:cyan)
+        puts 'D. East'.colorize(:cyan)
+        puts 'A. West'.colorize(:cyan)
         puts '***********************************************************'
         print '> '
-        choice = STDIN.gets.strip.to_i
+        # choice = STDIN.gets.strip.downcase
+        choice = prompt.keypress
         puts ''
         system('clear')
         case choice
-        when 1
+        when "w"
             return 'north'
-        when 2
+        when "s"
             return 'south'
-        when 3
+        when "d"
             return 'east'
-        when 4
+        when "a"
             return 'west'
         else
             p 'invalid choice'
