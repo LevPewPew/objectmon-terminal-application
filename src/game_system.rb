@@ -59,7 +59,7 @@ class Menu
                         choice = gets.strip
                         if !choice.length.between?(3, 10)
                             system('clear')
-                            raise('Player Name must be 3 to 10!')
+                            raise('Player Name must be 3 to 10 characters!'.colorize(:color => :black, :background => :light_yellow))
                         end
                         break
                     rescue => error
@@ -361,12 +361,6 @@ class Map
             
             puts "|#{row[0].player_is_here ? "       ".colorize(:color => :black, :background => :white) : "       "}|#{row[1].player_is_here ? "       ".colorize(:color => :black, :background => :white) : "       "}|#{row[2].player_is_here ? "       ".colorize(:color => :black, :background => :white) : "       "}|"
             puts '-------------------------'
-            # puts "|#{row[0].player_is_here ? "       ".colorize(:color => :black, :background => :white) : "       "}|#{row[1].player_is_here ? "       ".colorize(:color => :black, :background => :white) : "       "}|#{row[2].player_is_here ? "       ".colorize(:color => :black, :background => :white) : "       "}|"
-            
-            # puts "|#{row[0].player_is_here ? " #{row[0].get_map_symbol} ".colorize(:color => :black, :background => :white) : " #{row[0].get_map_symbol} "}|#{row[1].player_is_here ? " #{row[1].get_map_symbol} ".colorize(:color => :black, :background => :white) : " #{row[1].get_map_symbol} "}|#{row[2].player_is_here ? " #{row[2].get_map_symbol} ".colorize(:color => :black, :background => :white) : " #{row[2].get_map_symbol} "}|"
-            
-            # puts "|#{row[0].player_is_here ? "       ".colorize(:color => :black, :background => :white) : "       "}|#{row[1].player_is_here ? "       ".colorize(:color => :black, :background => :white) : "       "}|#{row[2].player_is_here ? "       ".colorize(:color => :black, :background => :white) : "       "}|"
-            # puts '-------------------------'
         end
         puts ''
     end
@@ -383,22 +377,42 @@ class Map
                     # the second part of the && boolean condition ensures that if the player is on the edge,
                     # that the position doesn't wrap around or create any other undesired
                     # behaviour but simply tells the user they cannot move in that direction
-                    if (direction == 'north') && (y_coord != 0)
-                        y_coord += -1
-                        x_coord += 0
-                    elsif (direction == 'south') && (y_coord != @map_grid.length - 1)
-                        y_coord += 1
-                        x_coord += 0
-                    elsif (direction == 'east') && (x_coord != row.length - 1)
-                        y_coord += 0
-                        x_coord += 1
-                    elsif (direction == 'west') && (x_coord != 0)
-                        y_coord += 0
-                        x_coord += -1
-                    else
-                        p "You cannot move further #{direction} lest you fall off the edge of the earth!"
+                    begin
+                        if (direction == 'north') && (y_coord != 0)
+                            y_coord += -1
+                            x_coord += 0
+                        elsif (direction == 'south') && (y_coord != @map_grid.length - 1)
+                            y_coord += 1
+                            x_coord += 0
+                        elsif (direction == 'east') && (x_coord != row.length - 1)
+                            y_coord += 0
+                            x_coord += 1
+                        elsif (direction == 'west') && (x_coord != 0)
+                            y_coord += 0
+                            x_coord += -1
+                        else
+                            raise("You cannot move further #{direction.capitalize} lest you fall off the edge of the earth!".colorize(:color => :black, :background => :light_yellow))
+                        end
+                    rescue => error
+                        puts error
                         puts ''
                     end
+                    # if (direction == 'north') && (y_coord != 0)
+                    #     y_coord += -1
+                    #     x_coord += 0
+                    # elsif (direction == 'south') && (y_coord != @map_grid.length - 1)
+                    #     y_coord += 1
+                    #     x_coord += 0
+                    # elsif (direction == 'east') && (x_coord != row.length - 1)
+                    #     y_coord += 0
+                    #     x_coord += 1
+                    # elsif (direction == 'west') && (x_coord != 0)
+                    #     y_coord += 0
+                    #     x_coord += -1
+                    # else
+                    #     p "You cannot move further #{direction} lest you fall off the edge of the earth!"
+                    #     puts ''
+                    # end
                 end
             end
         end

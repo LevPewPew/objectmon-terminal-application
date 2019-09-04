@@ -1,3 +1,3 @@
 added error handling with raise statement for character length limits for player name
 
-XXX added error handling with raise statement for walking off edge of map
+added error handling with raise statement for walking off edge of map
