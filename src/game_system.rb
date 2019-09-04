@@ -137,8 +137,8 @@ class Menu
             # check if a wild objectmon appears (is instantiated), and begin fight if so
             if map.map_grid[current_location[0]][current_location[1]].wild_objectmon
                 map.display_map
-                wild_objectmon = Objectmon.new("Stephamon", 'mountain', (15..20), 500) # TESTING objectmon, don't ship with this
-                # wild_objectmon = objectmons[:om_stevosaur].dup # UNCOMMENT on shipping
+                # wild_objectmon = Objectmon.new("Stephamon", 'mountain', (15..20), 500) # TESTING objectmon, don't ship with this
+                wild_objectmon = objectmons[:om_stevosaur].dup # UNCOMMENT on shipping
                 result = fight(player, player.objectmons, wild_objectmon)
                 # the fight method will break and return 'load-menu' if it broke due to losing the game. in turn we will break from here as well to return to the main menu
                 if result == 'load-menu'
