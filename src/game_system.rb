@@ -235,24 +235,23 @@ class Menu
             system('clear')
             case choice_action
             when 1
-                p "DEBUG"
-                p objectmon0.dmg
-                p objectmon0.dmg.class
-                p objectmon1.dmg
-                p objectmon1.dmg.class
                 dmg_by_objectmon0 = rand(objectmon0.dmg)
                 dmg_by_objectmon1 = rand(objectmon1.dmg)
                 puts "#{objectmon0.name}".colorize(:green) + " did #{dmg_by_objectmon0} to " + "#{objectmon1.name}".colorize(:red)
-                puts "#{objectmon1.name}".colorize(:red) + " did #{dmg_by_objectmon1} to " + "#{objectmon0.name}".colorize(:green)
-                puts ''
                 objectmon1.hp -= dmg_by_objectmon0
                 # enemy objectmon defeated
                 if objectmon1.hp <= 0
+                    puts ''
+                    puts "#{objectmon0.name}".colorize(:green) + " HP: #{objectmon0.hp}"
+                    puts "#{objectmon1.name}".colorize(:red) + " HP: #{objectmon1.hp}"
+                    puts ''
                     puts "You have defeated " + "#{objectmon1.name}".colorize(:red) + "!"
                     puts ''
                     return true
-                # player objectmon defeated
+                    # player objectmon defeated
                 else
+                    puts "#{objectmon1.name}".colorize(:red) + " did #{dmg_by_objectmon1} to " + "#{objectmon0.name}".colorize(:green)
+                    puts ''
                     objectmon0.hp -= dmg_by_objectmon1
                     if objectmon0.hp <= 0
                         system('clear')
@@ -397,22 +396,6 @@ class Map
                         puts error
                         puts ''
                     end
-                    # if (direction == 'north') && (y_coord != 0)
-                    #     y_coord += -1
-                    #     x_coord += 0
-                    # elsif (direction == 'south') && (y_coord != @map_grid.length - 1)
-                    #     y_coord += 1
-                    #     x_coord += 0
-                    # elsif (direction == 'east') && (x_coord != row.length - 1)
-                    #     y_coord += 0
-                    #     x_coord += 1
-                    # elsif (direction == 'west') && (x_coord != 0)
-                    #     y_coord += 0
-                    #     x_coord += -1
-                    # else
-                    #     p "You cannot move further #{direction} lest you fall off the edge of the earth!"
-                    #     puts ''
-                    # end
                 end
             end
         end
@@ -473,7 +456,7 @@ class HighScores
         # sort scores from highest to lowest, then remap the array of table lines to itself but with the "Place" column reorganised to reflect the added entry. there is no map with index so need to use an each with index first
         new_lines = new_lines
             .sort { |a, b| b[2] <=> a[2] }
-            .map.with_index { |line, i| ["#{i}"] + line[(1..2)] }
+            .map.with_index { |line, i| ["#{i + 1}"] + line[(1..2)] }
         new_lines.unshift(headers)
         new_lines = new_lines.map do |line|
             line.join(',')
