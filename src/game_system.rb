@@ -4,6 +4,9 @@ require 'csv'
 require 'terminal-table'
 require 'pry'
 
+SCORE_FACTOR_HP = 0.8
+SCORE_FACTOR_DMG = 1.2
+
 def run_game
     system('clear')
     puts ''
@@ -16,16 +19,13 @@ def run_game
     # Give some beginning guide and instuctions (FIXME: potentially elaborate on this further to make user experience better/easier/more-intuitive)
     puts 'Make your way to the South-East tile to win!'
     puts ''
-    # initialize map, player location and display map to user
-    map = Map.new
-    map.map_grid[0][0].player_is_here = true
 
-    om_gregachu = Objectmon.new("Gregachu", 'grass', [1, 4], 10)
-    om_jennizard = Objectmon.new("Jennizard", 'mountain', [9, 10], 2)
-    om_carlmander = Objectmon.new("Carlmander", 'volcano', [2, 5], 5)
-    om_lucymon = Objectmon.new("Lucymon", 'grass', [1, 1], 20)
-    om_stevosaur = Objectmon.new("Stevosaur", 'mountain', [1, 3], 5)
-    om_emileotto = Objectmon.new("Emileotto", 'volcano', [3, 4], 12)
+    om_gregachu = Objectmon.new("Gregachu", 'grass', (1..4), 10)
+    om_jennizard = Objectmon.new("Jennizard", 'mountain', (9..10), 2)
+    om_carlmander = Objectmon.new("Carlmander", 'volcano', (2..5), 5)
+    om_lucymon = Objectmon.new("Lucymon", 'grass', (1..1), 30)
+    om_stevosaur = Objectmon.new("Stevosaur", 'mountain', (1..3), 5)
+    om_emileotto = Objectmon.new("Emileotto", 'volcano', (3..4), 12)
 
     objectmons = {
         om_gregachu: om_gregachu,
@@ -36,20 +36,23 @@ def run_game
         om_emileotto: om_emileotto
     }
 
-    objectmons_starting = [objectmons[:om_gregachu].dup, objectmons[:om_jennizard].dup, objectmons[:om_carlmander].dup]
-    # FIXME ask for playername
-    player = Player.new("Lev", objectmons_starting)
-
     # run the menu loop to be navigated through. menu is being used as a way to control character actions and choose what info to display to user
-    Menu.menu_system(map, player, objectmons)
+    Menu.menu_system(objectmons)
 end
 
 class Menu
-    def self.menu_system(map, player, objectmons)
+    def self.menu_system(objectmons)
         loop do
+            # initialize map (sets location of wild objectmon as well as the winning tile) and set player location. these are done inside the menu system so that each time a new game is played without exiting the app it will reset the map.
+            map = Map.new
+            # set the starting position
+            map.set_location([0,0])
             choice = main_menu
             case choice
             when 'play'
+                objectmons_starting = [objectmons[:om_gregachu].dup, objectmons[:om_jennizard].dup, objectmons[:om_carlmander].dup]
+                # FIXME ask for playername
+                player = Player.new("Lev", objectmons_starting)
                 play_menu(map, player, objectmons)
             when 'scores'
                 table_rows = []
@@ -96,6 +99,7 @@ class Menu
         end
     end
 
+    # FIXME maybe move these display maps around and the system clears
     def self.play_menu(map, player, objectmons)
         map.display_map
         loop do
@@ -107,14 +111,15 @@ class Menu
                 puts '  Congratulations! You made it! You won!  '.colorize(:color => :black, :background => :green)
                 puts '                                          '.colorize(:color => :black, :background => :green)
                 puts ''
+                p player.get_score
                 break
             end
 
             # check if a wild objectmon appears (is instantiated), and begin fight if so
             if map.map_grid[current_location[0]][current_location[1]].wild_objectmon
                 map.display_map
-                wild_objectmon = Objectmon.new("Stephamon", 'mountain', [15, 20], 500) # TESTING objectmon, don't ship with this
-                # wild_objectmon = objectmons[:om_stevosaur].dup # UNCOMMENT on shipping
+                # wild_objectmon = Objectmon.new("Stephamon", 'mountain', [15, 20], 500) # TESTING objectmon, don't ship with this
+                wild_objectmon = objectmons[:om_stevosaur].dup # UNCOMMENT on shipping
                 result = fight(player, player.objectmons, wild_objectmon)
                 # the fight method will break and return 'load-menu' if it broke due to losing the game. in turn we will break from here as well to return to the main menu
                 if result == 'load-menu'
@@ -161,6 +166,7 @@ class Menu
         print '> '
         choice = gets.strip.to_i
         puts ''
+        system('clear')
         case choice
         when 1
             return 'north'
@@ -193,7 +199,7 @@ class Menu
                 print '> '
                 choice_objectmon = gets.strip.to_i
                 puts ''
-
+                system('clear')
                 objectmon0 = player.objectmons[choice_objectmon - 1].dup
             end
             puts "#{objectmon0.name}".colorize(:green) + " HP: #{objectmon0.hp}"
@@ -206,6 +212,7 @@ class Menu
             print '> '
             choice_action = gets.strip.to_i
             puts ''
+            system('clear')
             case choice_action
             when 1
                 dmg_by_objectmon0 = rand(objectmon0.dmg)
@@ -216,7 +223,6 @@ class Menu
                 objectmon1.hp -= dmg_by_objectmon0
                 # enemy objectmon defeated
                 if objectmon1.hp <= 0
-                    system('clear')
                     puts "You have defeated " + "#{objectmon1.name}".colorize(:red) + "!"
                     puts ''
                     return true
@@ -234,6 +240,7 @@ class Menu
                             puts '                                                                               '.colorize(:color => :white, :background => :red)
                             puts ''
                             # this syntax means upon break return the string 'lost', in the loop that this loop is nested in, we will check if this is what the method returned, and use it to break the outer loop if so, returning us to the main menu
+                            p player.get_score
                             break 'load-menu'
                         end
                         return false
@@ -259,6 +266,20 @@ class Player
         @name = name
         @objectmons = objectmons
     end
+
+    # this method returns a score to use for high score table upon a win
+    # the total HP and total average damage output remaining across all objectmons is used to calculate the score
+    def get_score
+        total_hp = objectmons
+            .map { |objectmon| objectmon.hp }
+            .sum
+        total_avg_dmg = objectmons
+            .map { |objectmon| objectmon.dmg.sum / objectmon.dmg.size.to_f }
+            .sum
+        score = total_hp * SCORE_FACTOR_HP + total_avg_dmg * SCORE_FACTOR_DMG
+        # round down
+        return score.to_i
+    end
 end
 
 class Objectmon
@@ -268,7 +289,7 @@ class Objectmon
     def initialize(name, type, dmg, hp)
         @name = name
         @type = type
-        @dmg = (dmg[0]..dmg[1])
+        @dmg = dmg
         @hp = hp
     end
 end
@@ -318,7 +339,6 @@ class Map
     end
     
     def move_location(direction)
-        system('clear')
         x_coord = nil
         y_coord = nil
         @map_grid.each_with_index do |row, i|
@@ -351,6 +371,16 @@ class Map
         end
         @map_grid[y_coord][x_coord].player_is_here = true
         return [y_coord, x_coord]
+    end
+
+    def set_location(location)
+        @map_grid.each do |row|
+            row.each do |tile|
+                tile.player_is_here = false
+            end
+        end
+        @map_grid[location[0]][location[1]].player_is_here = true
+        return [location[0], location[1]]
     end
 end
 
