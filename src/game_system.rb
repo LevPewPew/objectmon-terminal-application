@@ -233,21 +233,25 @@ class Menu
         puts 'A. West'.colorize(:cyan)
         puts '***********************************************************'
         print '> '
-        # choice = STDIN.gets.strip.downcase
         choice = prompt.keypress
         puts ''
         system('clear')
-        case choice
-        when "w"
-            return 'north'
-        when "s"
-            return 'south'
-        when "d"
-            return 'east'
-        when "a"
-            return 'west'
-        else
-            p 'invalid choice'
+        begin
+            case choice
+            when 'w'
+                return 'north'
+            when 's'
+                return 'south'
+            when 'd'
+                return 'east'
+            when 'a'
+                return 'west'
+            else
+                raise('Invalid Keystroke. Please use W, A, S, D'.colorize(:color => :black, :background => :light_yellow))
+            end
+        rescue => error
+            puts error
+            puts ''
         end
     end
 
@@ -440,7 +444,7 @@ class Map
                         elsif (direction == 'west') && (x_coord != 0)
                             y_coord += 0
                             x_coord += -1
-                        else
+                        elsif ['north', 'south', 'east', 'west'].include?(direction)
                             raise("You cannot move further #{direction.capitalize} lest you fall off the edge of the earth!".colorize(:color => :black, :background => :light_yellow))
                         end
                     rescue => error
