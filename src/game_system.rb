@@ -2,19 +2,64 @@ require 'colorize'
 require 'artii'
 require 'terminal-table'
 require 'tty-prompt'
+require 'pry'
 
 SCORE_FACTOR_HP = 0.8
 SCORE_FACTOR_DMG = 1.2
 
 def run_game
+    if ARGV[0] != nil
+        begin
+            if !(ARGV[0].slice(0) == "-")
+                raise("did you mean '-#{ARGV[0]}' (with a dash)?")
+            end
+
+            #if ARG[0] is anything other than -r, -d or combination
+            argv_test = ARGV[0]
+                .split('')
+            argv_test_new = ARGV[0]
+                .split('')
+                .pop(ARGV[0].length - 1)
+                .reject { |char| char != 'r' && char != 'd' }
+                .uniq
+                .unshift('-')
+            if argv_test != argv_test_new
+                raise("invalid argument/s")
+            end
+
+            if ARGV[0].include?("d")
+                if ARGV[1] != 'hard'
+                    raise("did you mean '-#{ARGV[0]} hard'?")
+                end
+            end
+        rescue => error
+            print "error: "
+            puts error
+            exit
+        end
+
+        # if ARGV -r is provided, reset the high score table
+        if ARGV[0].include?("r")
+            `cp default_high_scores.csv test_high_scores.csv`
+        end
+
+        if ARGV[0].include?("d") && ARGV[1].include?("hard")
+            difficulty = 'hard'
+        end
+    end
+    # NOTE: when an ARGV is provided, exceptions are thrown whenever gets is called
+    # to fix this, we must ad STDIN to the front, e.g. STDIN.gets.strip
+    # otherwise gets is trying to read something from ARGV somehow
+    # https://stackoverflow.com/questions/27453569/using-gets-gives-no-such-file-or-directory-error-when-i-pass-arguments-to-my/27453657
+
     system('clear')
     puts ''
-    # print title of game in ascii art to be fancy
     artii = Artii::Base.new :font => 'nancyj-fancy'
     puts artii.asciify('Objectmon!').colorize(:magenta)
     puts ''
 
     # FIXME hard coded, fix if time
+    # FIXME also since menu has changed move this to alater spot
     # Give some beginning guide and instuctions (FIXME: potentially elaborate on this further to make user experience better/easier/more-intuitive)
     puts 'Make your way to the South-East tile to win!'
     puts ''
@@ -36,11 +81,11 @@ def run_game
     }
 
     # run the menu loop to be navigated through. menu is being used as a way to control character actions and choose what info to display to user
-    Menu.menu_system(objectmons)
+    Menu.menu_system(objectmons, difficulty)
 end
 
 class Menu
-    def self.menu_system(objectmons)
+    def self.menu_system(objectmons, difficulty)
         loop do
             # initialize map (sets location of wild objectmon as well as the winning tile) and set player location. these are done inside the menu system so that each time a new game is played without exiting the app it will reset the map.
             map = Map.new
@@ -49,14 +94,18 @@ class Menu
             choice = main_menu
             case choice
             when 'play'
-                objectmons_starting = [objectmons[:om_gregachu].dup, objectmons[:om_jennizard].dup, objectmons[:om_carlmander].dup]
+                if difficulty == 'hard'
+                    objectmons_starting = [objectmons[:om_gregachu].dup]
+                else
+                    objectmons_starting = [objectmons[:om_gregachu].dup, objectmons[:om_jennizard].dup, objectmons[:om_carlmander].dup]
+                end
                 loop do
                     begin
                         puts '***********************************************************'
                         puts '                    Enter a Player Name                    '.colorize(:color => :black, :background => :white)
                         puts '***********************************************************'
                         print '> '
-                        choice = gets.strip
+                        choice = STDIN.gets.strip
                         if !choice.length.between?(3, 10)
                             system('clear')
                             raise('Player Name must be 3 to 10 characters!'.colorize(:color => :black, :background => :light_yellow))
@@ -101,7 +150,7 @@ class Menu
             puts '3. Quit'.colorize(:cyan)
             puts '***********************************************************'
             print '> '
-            choice = gets.strip.to_i
+            choice = STDIN.gets.strip.to_i
             puts ''
             system('clear')
             case choice
@@ -183,7 +232,7 @@ class Menu
         puts '4. West'.colorize(:cyan)
         puts '***********************************************************'
         print '> '
-        choice = gets.strip.to_i
+        choice = STDIN.gets.strip.to_i
         puts ''
         system('clear')
         case choice
@@ -217,7 +266,7 @@ class Menu
                 end
                 puts '***********************************************************'
                 print '> '
-                choice_objectmon = gets.strip.to_i
+                choice_objectmon = STDIN.gets.strip.to_i
                 puts ''
                 system('clear')
                 objectmon0 = player.objectmons[choice_objectmon - 1].dup
@@ -230,7 +279,7 @@ class Menu
             puts '1. Attack'.colorize(:cyan)
             puts '***********************************************************'
             print '> '
-            choice_action = gets.strip.to_i
+            choice_action = STDIN.gets.strip.to_i
             puts ''
             system('clear')
             case choice_action
@@ -248,11 +297,11 @@ class Menu
                     puts "You have defeated " + "#{objectmon1.name}".colorize(:red) + "!"
                     puts ''
                     return true
-                    # player objectmon defeated
                 else
                     puts "#{objectmon1.name}".colorize(:red) + " did #{dmg_by_objectmon1} to " + "#{objectmon0.name}".colorize(:green)
                     puts ''
                     objectmon0.hp -= dmg_by_objectmon1
+                    # player objectmon defeated
                     if objectmon0.hp <= 0
                         system('clear')
                         puts "#{objectmon1.name}".colorize(:red) + " has defeated " + "#{objectmon0.name}".colorize(:green) + "!"
