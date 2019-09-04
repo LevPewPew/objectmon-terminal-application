@@ -11,3 +11,5 @@ things i would improve upon (that isn't adding more features)
 - would start by using tty-prompt gem next time
 
 high score table. just quickly mention u read and write to a csv
+
+error handling on playername and on moving off edge of map

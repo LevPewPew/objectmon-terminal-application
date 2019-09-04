@@ -57,13 +57,14 @@ class Menu
                         puts '***********************************************************'
                         print '> '
                         choice = gets.strip
-                        # FIXME bug keeps loopiomng here
-                        if choice.length < 3 || choice.length > 10 # FIXME SEE IF CAN USE RANGE AS CONDITION LIKE WITH CASE
-                            raise('Player Name must be 3 to 10')
+                        if !choice.length.between?(3, 10)
+                            system('clear')
+                            raise('Player Name must be 3 to 10!')
                         end
                         break
                     rescue => error
                         puts error
+                        puts ''
                     end
                 end
                 system('clear')
@@ -136,8 +137,8 @@ class Menu
             # check if a wild objectmon appears (is instantiated), and begin fight if so
             if map.map_grid[current_location[0]][current_location[1]].wild_objectmon
                 map.display_map
-                # wild_objectmon = Objectmon.new("Stephamon", 'mountain', [15, 20], 500) # TESTING objectmon, don't ship with this
-                wild_objectmon = objectmons[:om_stevosaur].dup # UNCOMMENT on shipping
+                wild_objectmon = Objectmon.new("Stephamon", 'mountain', (15..20), 500) # TESTING objectmon, don't ship with this
+                # wild_objectmon = objectmons[:om_stevosaur].dup # UNCOMMENT on shipping
                 result = fight(player, player.objectmons, wild_objectmon)
                 # the fight method will break and return 'load-menu' if it broke due to losing the game. in turn we will break from here as well to return to the main menu
                 if result == 'load-menu'
@@ -199,8 +200,9 @@ class Menu
         end
     end
 
+    # returns true if win, returns false if loss
     def self.fight(player, objectmons, objectmon1)
-        # returns true if win, returns false if loss
+        prompt = TTY::Prompt.new
         round = 1
         objectmon0 = nil
         loop do
@@ -233,6 +235,11 @@ class Menu
             system('clear')
             case choice_action
             when 1
+                p "DEBUG"
+                p objectmon0.dmg
+                p objectmon0.dmg.class
+                p objectmon1.dmg
+                p objectmon1.dmg.class
                 dmg_by_objectmon0 = rand(objectmon0.dmg)
                 dmg_by_objectmon1 = rand(objectmon1.dmg)
                 puts "#{objectmon0.name}".colorize(:green) + " did #{dmg_by_objectmon0} to " + "#{objectmon1.name}".colorize(:red)
@@ -259,6 +266,8 @@ class Menu
                             puts ''
                             # this syntax means upon break return the string 'lost', in the loop that this loop is nested in, we will check if this is what the method returned, and use it to break the outer loop if so, returning us to the main menu
                             HighScores.add_score(player)
+                            prompt.keypress("Press any key to continue, returning to main menu automatically in :countdown ...", timeout: 10)
+                            system('clear')
                             break 'load-menu'
                         end
                         return false
