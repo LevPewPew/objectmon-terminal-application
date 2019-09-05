@@ -2,6 +2,27 @@
 
 Welcome to Objectmon, a very, very basic Pokemon style game running as a text/ascii based terminal application.
 
+## Contents
+* [Help File](#help-file)
+    * [System Requirements](#system-requirements)
+    * [Installation and Run Instructions](#installation-and-run-instructions)
+    * [Gameplay instructions](#gameplay-instructions)
+        * [The Map](#the-map)
+        * [Battle](#battle)
+        * [Objectmon Stats](#objectmon-stats)
+* [Software Development Plan](#software-developmen-plan)
+    * [Statement of Purpose and Scope](#statement-of-purpose-and-scope)
+    * [Features](#features)
+        * [World Map to Navigate](#world-map-to-navigate)
+        * [Combat System](#combat-system)
+        * [High Score Table](#high-score-table)
+    * [User Interaction and Experience](#user-interaction-and-experience)
+    * [Control Flow Diagram](#control-flow-diagram)
+    * [Implementation Plan](#implementation-plan)
+    * [Testing](#testing)
+    * [Developer Operations](#developer-operations)
+
+
 # Help File
 
 ## System Requirements
@@ -29,7 +50,7 @@ As you travel the map you may run into Wild Objectmon and begin battle. Choose o
 * Ascii art icons on the map represent terrain type
   - Grass terrain represented by "
   - Mountain terrain represented by ^
-  - Volcano terrain represented by /\~
+  - Volcano terrain represented by /\\~
 
 * Different terrain types have different kinds of Wild Objectmon spawning there, a random Objectmon of the same type as the terrain.
 
