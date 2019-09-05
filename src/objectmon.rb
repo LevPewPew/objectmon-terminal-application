@@ -2,5 +2,5 @@
 
 require_relative 'game_system.rb'
 
-puts "HERE"
+puts 'HERE'
 run_game

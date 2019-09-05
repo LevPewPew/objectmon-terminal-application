@@ -57,12 +57,6 @@ def run_game
     puts artii.asciify('Objectmon!').colorize(:magenta)
     puts ''
 
-    # FIXME hard coded, fix if time
-    # FIXME also since menu has changed move this to a later spot
-    # Give some beginning guide and instuctions (FIXME: potentially elaborate on this further to make user experience better/easier/more-intuitive)
-    puts 'Make your way to the South-East tile to win!'
-    puts ''
-
     om_gregachu = Objectmon.new("Gregachu", 'grass', (1..4), 10)
     om_jennizard = Objectmon.new("Jennizard", 'mountain', (9..10), 2)
     om_carlmander = Objectmon.new("Carlmander", 'volcano', (20..50), 30)
@@ -163,10 +157,11 @@ class Menu
         end
     end
 
-    # FIXME maybe move these display maps around and the system clears
     def self.play_menu(map, player, objectmons)
         prompt = TTY::Prompt.new
         map.display_map
+        puts 'Make your way to the South-East tile to win!'
+        puts ''    
         loop do
             # choose and then move in a direction on the map, game is won if player reaches the winning tile
             choice = menu_ask_direction
@@ -181,20 +176,6 @@ class Menu
                 system('clear')
                 break
             end
-
-            # # check if a wild objectmon appears (is instantiated), and begin fight if so
-            # if map.map_grid[current_location[0]][current_location[1]].wild_objectmon
-            #     map.display_map
-            #     # wild_objectmon = Objectmon.new("Stephamon", 'mountain', (15..20), 500) # TESTING objectmon, don't ship with this FIXME
-            #     wild_objectmon = objectmons[:om_stevosaur].dup # UNCOMMENT on shipping FIXME
-            #     result = fight(player, player.objectmons, wild_objectmon)
-            #     # the fight method will break and return 'load-menu' if it broke due to losing the game. in turn we will break from here as well to return to the main menu
-            #     if result == 'load-menu'
-            #         break
-            #     end
-            # else
-            #     result = 'no-fight'
-            # end
 
             # check if a wild objectmon appears (is instantiated), and begin fight if so
             if map.map_grid[current_location[0]][current_location[1]].wild_objectmon
@@ -335,7 +316,6 @@ class Menu
                     objectmon0.hp -= dmg_by_objectmon1
                     # player objectmon defeated
                     if objectmon0.hp <= 0
-                        system('clear')
                         puts "#{objectmon1.name}".colorize(:red) + " has defeated " + "#{objectmon0.name}".colorize(:green) + "!"
                         puts ''
                         player.objectmons.delete_at(choice_objectmon - 1)
@@ -410,8 +390,6 @@ class Map
     attr_reader(:map_grid, :winning_tile)
 
     def initialize
-        # FIXME hard coded instances for now, if have time will make these more random and use a loop
-        # FIXME use hashes to generate instances for code clarity and maintainability
         @map_tile_0_0 = MapTile.new([0, 0], 'mountain', false)
         @map_tile_0_1 = MapTile.new([0, 1], 'grass', false)
         @map_tile_0_2 = MapTile.new([0, 2], 'mountain', false)
@@ -426,12 +404,12 @@ class Map
             [@map_tile_1_0, @map_tile_1_1, @map_tile_1_2],
             [@map_tile_2_0, @map_tile_2_1, @map_tile_2_2]
         ]
-        # FIXME hard coded for now
+        # FIXME hard coded for now, in future would make this random(ish)
         @winning_tile = [2, 2]
     end
     
     def display_map
-        puts "World Map:"
+        puts 'World Map:'
         puts '-------------------------'
         # for each row, get the map symbol associated with the terrain of the MapTile object. surround by < > symbols to indicate current location of player (current location is stored in a flag in the map tile)
         @map_grid.each do |row|
