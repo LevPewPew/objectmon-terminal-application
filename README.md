@@ -10,6 +10,11 @@ A very, very basic Pokemon style game running as a text/ascii based terminal app
   - mountain terrain represented by ^
   - volcano terrain represented by /\~
 
+emntion optimum resolution or aspect ratio (just say play fullscreen)
+
+
+
+
 ### Trello Board
 https://trello.com/b/nwIEDiKE
 
