@@ -65,10 +65,10 @@ def run_game
 
     om_gregachu = Objectmon.new("Gregachu", 'grass', (1..4), 10)
     om_jennizard = Objectmon.new("Jennizard", 'mountain', (9..10), 2)
-    om_carlmander = Objectmon.new("Carlmander", 'volcano', (2..5), 5)
+    om_carlmander = Objectmon.new("Carlmander", 'volcano', (20..50), 30)
     om_lucymon = Objectmon.new("Lucymon", 'grass', (1..1), 30)
     om_stevosaur = Objectmon.new("Stevosaur", 'mountain', (1..3), 5)
-    om_emileotto = Objectmon.new("Emileotto", 'volcano', (3..4), 12)
+    om_emileotto = Objectmon.new("Emileotto", 'volcano', (3..4), 120)
 
     objectmons = {
         om_gregachu: om_gregachu,
@@ -96,7 +96,7 @@ class Menu
                 if difficulty == 'hard'
                     objectmons_starting = [objectmons[:om_gregachu].dup]
                 else
-                    objectmons_starting = [objectmons[:om_gregachu].dup, objectmons[:om_jennizard].dup, objectmons[:om_carlmander].dup]
+                    objectmons_starting = [objectmons[:om_gregachu].dup, objectmons[:om_jennizard].dup, objectmons[:om_stevosaur].dup]
                 end
                 loop do
                     begin
@@ -182,12 +182,38 @@ class Menu
                 break
             end
 
+            # # check if a wild objectmon appears (is instantiated), and begin fight if so
+            # if map.map_grid[current_location[0]][current_location[1]].wild_objectmon
+            #     map.display_map
+            #     # wild_objectmon = Objectmon.new("Stephamon", 'mountain', (15..20), 500) # TESTING objectmon, don't ship with this FIXME
+            #     wild_objectmon = objectmons[:om_stevosaur].dup # UNCOMMENT on shipping FIXME
+            #     result = fight(player, player.objectmons, wild_objectmon)
+            #     # the fight method will break and return 'load-menu' if it broke due to losing the game. in turn we will break from here as well to return to the main menu
+            #     if result == 'load-menu'
+            #         break
+            #     end
+            # else
+            #     result = 'no-fight'
+            # end
+
             # check if a wild objectmon appears (is instantiated), and begin fight if so
             if map.map_grid[current_location[0]][current_location[1]].wild_objectmon
                 map.display_map
-                # wild_objectmon = Objectmon.new("Stephamon", 'mountain', (15..20), 500) # TESTING objectmon, don't ship with this FIXME
-                wild_objectmon = objectmons[:om_stevosaur].dup # UNCOMMENT on shipping FIXME
-                result = fight(player, player.objectmons, wild_objectmon)
+                # depending on the terrain type, the wild objectmon that spawns will be chosen at random from a pool of objectmons that share that type (mountains spawn only mountain objectmons for example)
+                terrain = map.map_grid[current_location[0]][current_location[1]].terrain
+                wild_objectmon = []
+                case terrain
+                when 'mountain'
+                    wild_objectmon << objectmons[:om_jennizard].dup
+                    wild_objectmon << objectmons[:om_stevosaur].dup
+                when 'grass'
+                    wild_objectmon << objectmons[:om_gregachu].dup
+                    wild_objectmon << objectmons[:om_lucymon].dup
+                when 'volcano'
+                    wild_objectmon << objectmons[:om_carlmander].dup
+                    wild_objectmon << objectmons[:om_emileotto].dup
+                end
+                result = fight(player, player.objectmons, wild_objectmon.sample)
                 # the fight method will break and return 'load-menu' if it broke due to losing the game. in turn we will break from here as well to return to the main menu
                 if result == 'load-menu'
                     break
@@ -259,6 +285,7 @@ class Menu
         prompt = TTY::Prompt.new
         round = 1
         objectmon0 = nil
+        choice_objectmon = nil
         loop do
             if round == 1
                 puts "A wild #{objectmon1.name} appears!"
@@ -390,7 +417,7 @@ class Map
         @map_tile_0_2 = MapTile.new([0, 2], 'mountain', false)
         @map_tile_1_0 = MapTile.new([1, 0], 'grass', false)
         @map_tile_1_1 = MapTile.new([1, 1], 'grass', false)
-        @map_tile_1_2 = MapTile.new([1, 2], 'volcano', false)
+        @map_tile_1_2 = MapTile.new([1, 2], 'volcano', true)
         @map_tile_2_0 = MapTile.new([2, 0], 'mountain', true)
         @map_tile_2_1 = MapTile.new([2, 1], 'mountain', false)
         @map_tile_2_2 = MapTile.new([2, 2], 'grass', false)

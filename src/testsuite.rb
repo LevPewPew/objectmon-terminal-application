@@ -80,7 +80,6 @@ def test_maptile_get_map_symbol
 end
 
 def test_player_get_score
-    # 8 * 1.2 + 20 * 0.8 = 25.6 > 25
     om_gregachu = Objectmon.new('Gregachu', 'grass', (1..4), 10)
     om_carlmander = Objectmon.new('Carlmander', 'volcano', (2..5), 5)
     om_stevosaur = Objectmon.new('Stevosaur', 'mountain', (1..3), 5)
