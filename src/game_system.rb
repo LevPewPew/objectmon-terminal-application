@@ -171,6 +171,7 @@ class Menu
         puts '  Congratulations! You made it! You won!  '.colorize(color: :black, background: :green)
         puts '                                          '.colorize(color: :black, background: :green)
         puts ''
+        `say "Congratulations! You made it! You won!"`
         HighScores.add_score(player)
         prompt.keypress("Press any key to continue, returning to main menu automatically in :countdown ...", timeout: 10)
         system('clear')
@@ -324,6 +325,7 @@ class Menu
               puts '  You have lost your last Objectmon... you lose. Try again you filthy casual.  '.colorize(color: :white, background: :red)
               puts '                                                                               '.colorize(color: :white, background: :red)
               puts ''
+              `say "You have lost your last Objectmon... you lose. Try again you filthy casual."`
               # this syntax means upon break return the string 'lost', in the loop that this loop is nested in, we will check if this is what the method returned, and use it to break the outer loop if so, returning us to the main menu
               HighScores.add_score(player)
               prompt.keypress("Press any key to continue, returning to main menu automatically in :countdown ...", timeout: 10)
