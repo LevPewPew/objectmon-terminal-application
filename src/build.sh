@@ -5,7 +5,7 @@ mkdir ../dist
 cp ./objectmon.rb ../dist
 cp ./game_system.rb ../dist
 cp ./default_high_scores.csv ../dist
-cp ../dist/default_high_scores.csv ../dist/high_scores.csv
+cp ./default_high_scores.csv ../dist/high_scores.csv
 # install all gems
 gem install colorize
 gem install artii 
