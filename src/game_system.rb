@@ -464,7 +464,7 @@ class Map
             end
         end
         @map_grid[location[0]][location[1]].player_is_here = true
-        return [location[0], location[1]]
+        return
     end
 end
 
