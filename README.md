@@ -21,6 +21,7 @@ Welcome to Objectmon, a very, very basic Pokemon style game running as a text/as
     * [Implementation Plan](#implementation-plan)
     * [Testing](#testing)
     * [Developer Operations](#developer-operations)
+* [Contact](#contact)
 
 
 # Help File
@@ -158,3 +159,9 @@ Source control and commit history can be viewed in the [project github repo](htt
 Evidence of project management can be viewed in this [Trello board](https://trello.com/b/nwIEDiKE). Screenshots of progress in project management can be accessed in the objectmon-terminal-application/project_management/project_management_tool_screenshots/ folder
 
 Developer tools have been used by writing automated testing scripts and a package dependancy installer, as mentioned above in this document under the **Testing** and **Installation and Run Instructions** headings respectively.
+
+# Contact
+
+* Email: levtoth1988@gmail.com
+* Twitter: [@DevLev3](https://twitter.com/DevLev3)
+* LinkedIn: [www.linkedin.com/in/levente-toth-42009b187](www.linkedin.com/in/levente-toth-42009b187)
