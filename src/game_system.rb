@@ -271,19 +271,26 @@ class Menu
     loop do
       if round == 1
         puts "A wild #{objectmon1.name} appears!"
-        puts ''
-        puts '***********************************************************'
-        puts '                   Select an Objectmon!                    '.colorize(color: :black, background: :white)
-        puts '-----------------------------------------------------------'
-        player.objectmons.each_with_index do |objectmon, i|
-          puts "#{i + 1}. #{objectmon.name}".colorize(:cyan)
+        loop do
+          puts ''
+          puts '***********************************************************'
+          puts '                   Select an Objectmon!                    '.colorize(color: :black, background: :white)
+          puts '-----------------------------------------------------------'
+          player.objectmons.each_with_index do |objectmon, i|
+            puts "#{i + 1}. #{objectmon.name}".colorize(:cyan)
+          end
+          puts '***********************************************************'
+          print '> '
+          choice_objectmon = STDIN.gets.strip.to_i
+          puts ''
+          system('clear')
+          if !(1..objectmons.length).to_a.include?(choice_objectmon)
+            puts 'Invalid choice selected, please try again.'.colorize(color: :black, background: :light_yellow)
+          else
+            objectmon0 = player.objectmons[choice_objectmon - 1]
+            break
+          end
         end
-        puts '***********************************************************'
-        print '> '
-        choice_objectmon = STDIN.gets.strip.to_i
-        puts ''
-        system('clear')
-        objectmon0 = player.objectmons[choice_objectmon - 1]
       end
       puts "#{objectmon0.name}".colorize(:green) + " HP: #{objectmon0.hp}"
       puts "#{objectmon1.name}".colorize(:red) + " HP: #{objectmon1.hp}"
@@ -301,6 +308,7 @@ class Menu
         dmg_by_objectmon0 = rand(objectmon0.dmg)
         dmg_by_objectmon1 = rand(objectmon1.dmg)
         puts "#{objectmon0.name}".colorize(:green) + " did #{dmg_by_objectmon0} to " + "#{objectmon1.name}".colorize(:red)
+        # Player objectmon does damage to Wild Objectmon first
         objectmon1.hp -= dmg_by_objectmon0
         # enemy objectmon defeated
         if objectmon1.hp <= 0
@@ -314,6 +322,7 @@ class Menu
         else
           puts "#{objectmon1.name}".colorize(:red) + " did #{dmg_by_objectmon1} to " + "#{objectmon0.name}".colorize(:green)
           puts ''
+          # Wild Objectmon now does damage to Player Objectmon
           objectmon0.hp -= dmg_by_objectmon1
           # player objectmon defeated
           if objectmon0.hp <= 0
@@ -336,7 +345,7 @@ class Menu
           end
         end
       else
-        p 'Invalid choice selected, please try again'
+        puts 'Invalid choice selected, please try again.'.colorize(color: :black, background: :light_yellow)
         puts ''
       end
       round += 1

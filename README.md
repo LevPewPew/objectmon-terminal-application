@@ -33,11 +33,23 @@ Welcome to Objectmon, a very, very basic Pokemon style game running as a text/as
 ## Installation and Run Instructions
 
 1. Unzip the file submitted in canvas and navigate via terminal to the objectmon-terminal-application/src/ directory. Or clone the Repo, git@github<i></i>.com:LevPewPew/objectmon-terminal-application.git
+````
+git clone git@github.com:LevPewPew/objectmon-terminal-application.git
+````
 2. Run the build<i></i>.sh file (located in objectmon-terminal-application/src/) using bash to build the game. This build file will install dependencies required.
+````
+bash build.sh
+````
 3. Run the objectmon.rb file using ruby to launch the game. For best results please run the game in a full screen terminal.
+````
+ruby objectmon.rb
+````
 4. Optional arguments can be given when launching the game
     - Change difficulty from Normal to Hard with `-d hard`. This gives you just 1 starting Objectmon instead of 3.
     - Reset the High Score table with `-r`
+````
+ruby objectmon.rb -rd hard
+````
 
 ## Gameplay instructions
 
