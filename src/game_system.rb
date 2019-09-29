@@ -424,6 +424,7 @@ class Map
     puts 'World Map:'
     puts '-------------------------'
     # for each row, get the map symbol associated with the terrain of the MapTile object. surround by < > symbols to indicate current location of player (current location is stored in a flag in the map tile)
+    # note from szab, a nice r implementation could be writing this all out "blank". and then aftwards at a specific character (split into array first, ur use ruby methods that can target a specific character index if any) and then just turn that from a space into the terrain type ascii char i needed)
     @map_grid.each do |row|
       puts "|#{row[0].player_is_here ? "       ".colorize(color: :black, background: :white) : "       "}|#{row[1].player_is_here ? "       ".colorize(color: :black, background: :white) : "       "}|#{row[2].player_is_here ? "       ".colorize(color: :black, background: :white) : "       "}|"
 
@@ -467,7 +468,7 @@ class Map
             puts error
             puts ''
           end
-          end
+        end
       end
     end
     @map_grid[y_coord][x_coord].player_is_here = true
@@ -530,10 +531,6 @@ class HighScores
                 .map.with_index { |line, i| [("#{i + 1}")] + line[(1..2)] }
                 .unshift(headers)
                 .map { |line| line.join(',') }
-    # new_lines.unshift(headers)
-    # new_lines = new_lines.map do |line|
-    #   line.join(',')
-    # end
 
     File.open('high_scores.csv', 'w') do |file|
       file.write(new_lines.join)
